@@ -1,8 +1,8 @@
-# GCP Native Project Pipeline
+# GCP ETL STREAM Crypto
 
 This project is the first in a series that demonstrates how to build a fully native pipeline using various Google Cloud services to design a robust, scalable data platform. By leveraging the power of GCP’s serverless and managed services, you'll learn how to integrate, process, and visualize data efficiently.
 
-![Image](../assets/gcp-native.png "GCP Professional Engineer Projects")
+![Image](../../assets/gcp-native.png "GCP ETL STREAM Crypto")
 
 ## Services Used
 
