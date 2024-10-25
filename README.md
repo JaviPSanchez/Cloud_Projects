@@ -12,6 +12,6 @@
 1.  GCP ETL Stream Event-Driven PubSub
 2.  GCP ETL Stream Airflow
 3.  GCP ETL Stream Mage
-4.  GCP ETL Batch Event-Driven PubSub
-5.  AWS ETL Stream Event-Driven
-6.  AWS ETL Batch Kayak
+4.  AWS ETL Stream Event-Driven
+5.  AWS ETL Batch Kayak
+6.  ...
