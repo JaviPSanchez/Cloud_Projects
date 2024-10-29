@@ -1,5 +1,5 @@
 # You need this to use FastAPI, work with statuses and be able to end HTTPExceptions
-from fastapi import FastAPI, status, HTTPException
+from fastapi import FastAPI, Request, HTTPException, status
 
 # You need this to be able to turn classes into JSONs and return
 from fastapi.encoders import jsonable_encoder
@@ -76,7 +76,7 @@ async def post_invoice_item(item: InvoiceItem):  # body awaits a JSON with invoi
         logger.error(f"ValueError: {e}")
         return JSONResponse(content=jsonable_encoder(item), status_code=400)
     
-@app.post("/process-data-trigger")
+@app.post("/process-data-trigger-v2")
 async def process_data_trigger(request: Request):
     """Handle Cloud Storage event trigger, process JSON data, and send to Kafka."""
     logger.info(f"Request received: {request}")

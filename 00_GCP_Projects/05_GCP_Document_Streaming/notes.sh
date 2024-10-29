@@ -1,5 +1,5 @@
 # Launch FastAPI (From root folder) to run locally
-uvicorn app.main:app --reload --port 8200
+uvicorn app.main:app --reload --port <port>
 
 # Run Docker Compose under the same network
 docker-compose up --build
