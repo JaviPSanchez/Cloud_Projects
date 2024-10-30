@@ -146,8 +146,11 @@ def produce_kafka_string(json_as_string):
     try:
         logger.info("Attempting to create Kafka producer...")
         
-        # Create Kafka producer
-        producer = KafkaProducer(bootstrap_servers='kafka:9092', acks=1)
+        # Create Kafka producer in local
+        # producer = KafkaProducer(bootstrap_servers='kafka:9092', acks=1)
+        
+        # Create Kafka producer in GCP
+        producer = KafkaProducer(bootstrap_servers='bootstrap.kafka-cluster.us-central1.managedkafka.gcp-classification-v1.cloud.goog:9092', acks=1)
         logger.info("Kafka producer created successfully.")
 
         # Write the string as bytes because Kafka needs it this way
@@ -165,4 +168,4 @@ def produce_kafka_string(json_as_string):
         logger.error("An error occurred while producing Kafka message: %s", e)
     finally:
         if producer is not None:
-            producer.close()  # Close the producer only if it was created
+            producer.close()  # Close the producer only if it was createdted
