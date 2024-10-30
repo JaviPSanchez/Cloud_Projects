@@ -103,9 +103,18 @@ async def process_data_trigger(request: Request):
         blob = bucket.blob(file_name)
         
         # Log before downloading the file content
+        # logger.info(f"Downloading file: {file_name} from bucket: {bucket_name}")
+        # json_data = json.loads(blob.download_as_text())
+        # logger.info(f"Downloaded data: {json_data}")
+        
+        # Log before downloading the file content
         logger.info(f"Downloading file: {file_name} from bucket: {bucket_name}")
-        json_data = json.loads(blob.download_as_text())
-        logger.info(f"Downloaded data: {json_data}")
+        file_content = blob.download_as_text()
+        logger.info(f"Downloaded data: {file_content}")
+        
+        # Parse each JSON object separately
+        json_data = [json.loads(line) for line in file_content.strip().splitlines()]
+        logger.info(f"Parsed JSON data: {json_data}")
 
         # Process each invoice item in the JSON data
         for item_data in json_data:
@@ -114,8 +123,8 @@ async def process_data_trigger(request: Request):
             item = InvoiceItem(**item_data)
             
             # Format the date as required
-            date = datetime.strptime(item.InvoiceDate, "%d/%m/%Y %H:%M")
-            item.InvoiceDate = date.strftime("%d-%m-%Y %H:%M:%S")
+            date = datetime.strptime(item.InvoiceDate, "%d/%m/%y %H:%M")  # Change %Y to %y
+            item.InvoiceDate = date.strftime("%d-%m-%Y %H:%M:%S")  # Convert to four-digit year format if needed
             logger.debug(f"Formatted InvoiceDate: {item.InvoiceDate}")
             
             # Convert to JSON string
