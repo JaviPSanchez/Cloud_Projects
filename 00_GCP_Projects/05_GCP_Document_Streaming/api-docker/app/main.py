@@ -80,12 +80,17 @@ async def post_invoice_item(item: InvoiceItem):  # body awaits a JSON with invoi
 async def process_data_trigger(request: Request):
     """Handle Cloud Storage event trigger, process JSON data, and send to Kafka."""
     logger.info(f"Request received: {request}")
-    
+
     try:
         # Parse the request body
         body = await request.json()
-        bucket_name = body["bucket"]
-        file_name = body["name"]
+        logger.info(f"Parsed request body: {body}")
+        
+        bucket_name = body.get("bucket")
+        file_name = body.get("name")
+        
+        # Log bucket and file name details
+        logger.info(f"Bucket name: {bucket_name}, File name: {file_name}")
 
         # Ensure we're only processing the intended file
         if file_name != "Processed_Data.json":
@@ -96,18 +101,26 @@ async def process_data_trigger(request: Request):
         client = storage.Client()
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(file_name)
+        
+        # Log before downloading the file content
+        logger.info(f"Downloading file: {file_name} from bucket: {bucket_name}")
         json_data = json.loads(blob.download_as_text())
+        logger.info(f"Downloaded data: {json_data}")
 
         # Process each invoice item in the JSON data
         for item_data in json_data:
+            logger.debug(f"Processing item data: {item_data}")
+            
             item = InvoiceItem(**item_data)
             
             # Format the date as required
             date = datetime.strptime(item.InvoiceDate, "%d/%m/%Y %H:%M")
             item.InvoiceDate = date.strftime("%d-%m-%Y %H:%M:%S")
+            logger.debug(f"Formatted InvoiceDate: {item.InvoiceDate}")
             
             # Convert to JSON string
             json_as_string = json.dumps(jsonable_encoder(item))
+            logger.debug(f"JSON string to be sent to Kafka: {json_as_string}")
             produce_kafka_string(json_as_string)
 
         logger.info("Processed and sent all items to Kafka.")
