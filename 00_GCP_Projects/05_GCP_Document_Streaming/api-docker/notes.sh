@@ -1,3 +1,5 @@
+# Open my Docker Hub
+https://hub.docker.com/r/javipsanchez/fastapi
 # Build image
 docker build -t javipsanchez/fastapi:v6 .
 # Docker Login
