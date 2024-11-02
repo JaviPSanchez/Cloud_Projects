@@ -20,12 +20,12 @@ cd /opt/bitnami/kafka/bin
 ./kafka-topics.sh --list --bootstrap-server localhost:9092
 
 ## Create Topic
-./kafka-topics.sh --create --topic ingestion-topic --bootstrap-server localhost:9092
+./kafka-topics.sh --create --topic TOPIC_NAME --bootstrap-server localhost:9092
 ./kafka-topics.sh --create --topic spark-output --bootstrap-server localhost:9092
 
 
 # Local consumer
-./kafka-console-consumer.sh --topic ingestion-topic --bootstrap-server localhost:9092
+./kafka-console-consumer.sh --topic TOPIC_NAME --bootstrap-server localhost:9092
 ./kafka-console-consumer.sh --topic spark-output --bootstrap-server localhost:9092
 
 

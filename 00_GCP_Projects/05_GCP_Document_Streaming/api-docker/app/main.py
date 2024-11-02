@@ -146,21 +146,18 @@ def produce_kafka_string(json_as_string):
     try:
         logger.info("Attempting to create Kafka producer...")
         
-        # Create Kafka producer in local
-        # producer = KafkaProducer(bootstrap_servers='kafka:9092', acks=1)
-        
         # Create Kafka producer in GCP
         producer = KafkaProducer(bootstrap_servers='bootstrap.kafka-cluster.us-central1.managedkafka.gcp-classification-v1.cloud.goog:9092', acks=1)
         logger.info("Kafka producer created successfully.")
 
         # Write the string as bytes because Kafka needs it this way
-        future = producer.send('ingestion-topic', bytes(json_as_string, 'utf-8'))
+        future = producer.send('t1', bytes(json_as_string, 'utf-8'))
         logger.info("Message sent to Kafka: %s", json_as_string)
         
         # Block until a single message is sent (or timeout)
         result = future.get(timeout=10)  # Wait for the send to complete
 
-        logger.info("Produced message to Kafka topic 'ingestion-topic': %s", result)
+        logger.info("Produced message to Kafka topic 't1': %s", result)
     
     except KafkaError as e:
         logger.error("Failed to send message to Kafka: %s", e)

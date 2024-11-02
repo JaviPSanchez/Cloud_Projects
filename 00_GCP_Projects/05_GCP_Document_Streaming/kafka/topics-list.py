@@ -16,8 +16,8 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 print(BASEDIR)
 
 # Define path to the credentials file and set GOOGLE_APPLICATION_CREDENTIALS
-google_credentials_path = os.path.join(BASEDIR, '../secrets/key_access_sql.json')
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
+# google_credentials_path = os.path.join(BASEDIR, '../secrets/key_access_sql.json')
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
 
 
 def list_topics(
