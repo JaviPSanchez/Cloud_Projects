@@ -151,18 +151,18 @@ def produce_kafka_string(json_as_string):
         logger.info("Kafka producer created successfully.")
 
         # Write the string as bytes because Kafka needs it this way
-        future = producer.send('t1', bytes(json_as_string, 'utf-8'))
-        logger.info("Message sent to Kafka: %s", json_as_string)
+        future = producer.send('t2', bytes(json_as_string, 'utf-8'))
+        logger.info(f"Message sent to Kafka: {json_as_string}")
         
         # Block until a single message is sent (or timeout)
         result = future.get(timeout=10)  # Wait for the send to complete
 
-        logger.info("Produced message to Kafka topic 't1': %s", result)
+        logger.info(f"Produced message to Kafka topic 't2': {result}")
     
     except KafkaError as e:
-        logger.error("Failed to send message to Kafka: %s", e)
+        logger.error(f"Failed to send message to Kafka: {e}")
     except Exception as e:
-        logger.error("An error occurred while producing Kafka message: %s", e)
+        logger.error(f"An error occurred while producing Kafka message: {e}")
     finally:
         if producer is not None:
             producer.close()  # Close the producer only if it was createdted
