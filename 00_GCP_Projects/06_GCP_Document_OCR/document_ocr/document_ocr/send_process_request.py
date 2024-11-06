@@ -1,3 +1,6 @@
+import os
+from typing import Optional
+
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai  # type: ignore
 
@@ -19,17 +22,19 @@ FILE_PATH=os.getenv("FILE_PATH")
 MIME_TYPE=os.getenv("MIME_TYPE")
 FIELD_MASK=os.getenv("FIELD_MASK")
 PROCESSOR_VERSION_ID=os.getenv("PROCESSOR_VERSION_ID")
-PROCESSOR_DISPLAY_NAME=os.getenv("PROCESSOR_DISPLAY_NAME")
 
 
-def quickstart(
+def process_document_sample(
     project_id: str,
     location: str,
+    processor_id: str,
     file_path: str,
-    processor_display_name: str,
-):
-    logger.info("Starting Document AI quickstart function")
-    logger.debug(f"Parameters - Project ID: {project_id}, Location: {location}, File Path: {file_path}, Processor Display Name: {processor_display_name}")
+    mime_type: str,
+    field_mask: Optional[str] = None,
+    processor_version_id: Optional[str] = None,
+) -> None:
+    logger.info("Starting document processing sample")
+    logger.debug(f"Parameters - Project ID: {project_id}, Location: {location}, Processor ID: {processor_id}, File Path: {file_path}, Mime Type: {mime_type}, Field Mask: {field_mask}, Processor Version ID: {processor_version_id}")
 
     # Setting API endpoint based on location
     opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
@@ -42,22 +47,16 @@ def quickstart(
         logger.error(f"Failed to initialize DocumentProcessorServiceClient: {e}")
         return
 
-    parent = client.common_location_path(project_id, location)
-    logger.debug(f"Parent location path set to {parent}")
-
+    # Determine resource path based on processor version
     try:
-        # Create a Processor
-        processor = client.create_processor(
-            parent=parent,
-            processor=documentai.Processor(
-                type_="OCR_PROCESSOR",  # Specify the processor type
-                display_name=processor_display_name,
-            ),
-        )
-        logger.info(f"Processor created with display name {processor_display_name}")
-        logger.debug(f"Processor Name: {processor.name}")
+        if processor_version_id:
+            name = client.processor_version_path(project_id, location, processor_id, processor_version_id)
+            logger.debug(f"Processor version path set to {name}")
+        else:
+            name = client.processor_path(project_id, location, processor_id)
+            logger.debug(f"Processor path set to {name}")
     except Exception as e:
-        logger.error(f"Failed to create processor: {e}")
+        logger.error(f"Failed to construct processor path: {e}")
         return
 
     # Reading the file into memory
@@ -69,15 +68,24 @@ def quickstart(
         logger.error(f"Failed to read file '{file_path}': {e}")
         return
 
-    raw_document = documentai.RawDocument(
-        content=image_content,
-        mime_type="application/pdf",
-    )
-    logger.debug("Raw document prepared with content from file")
+    # Load binary data
+    raw_document = documentai.RawDocument(content=image_content, mime_type=mime_type)
+    logger.debug("Raw document prepared with binary data from file")
 
-    # Configuring the process request
-    request = documentai.ProcessRequest(name=processor.name, raw_document=raw_document)
-    logger.info("Process request configured")
+    # Setting up process options
+    process_options = documentai.ProcessOptions(
+        individual_page_selector=documentai.ProcessOptions.IndividualPageSelector(pages=[1])
+    )
+    logger.debug("Process options configured for specific pages")
+
+    # Configure the process request
+    request = documentai.ProcessRequest(
+        name=name,
+        raw_document=raw_document,
+        field_mask=field_mask,
+        process_options=process_options,
+    )
+    logger.info("Process request configured successfully")
 
     try:
         result = client.process_document(request=request)
@@ -93,4 +101,4 @@ def quickstart(
     logger.info(document.text)
 
 
-quickstart(PROJECT_ID, LOCATION, FILE_PATH, PROCESSOR_DISPLAY_NAME)
+process_document_sample(PROJECT_ID, LOCATION, PROCESSOR_ID, FILE_PATH, MIME_TYPE, FIELD_MASK, PROCESSOR_VERSION_ID)

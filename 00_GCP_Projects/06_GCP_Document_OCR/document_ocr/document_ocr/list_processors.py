@@ -2,8 +2,12 @@
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai  # type: ignore
 
-project_id = 'gcp-classification-v1'
-location = 'us' # Format is 'us' or 'eu'
+from dotenv import load_dotenv
+
+load_dotenv("../secrets/.env")
+
+PROJECT_ID=os.getenv("PROJECT_ID")
+LOCATION=os.getenv("LOCATION")
 
 
 def fetch_processor_types_sample(project_id: str, location: str) -> None:
@@ -25,4 +29,4 @@ def fetch_processor_types_sample(project_id: str, location: str) -> None:
         if processor_type.allow_creation:
             print(processor_type.type_)
 
-fetch_processor_types_sample(project_id, location)
+fetch_processor_types_sample(PROJECT_ID, LOCATION)
