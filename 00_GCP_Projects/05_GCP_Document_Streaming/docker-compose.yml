@@ -31,16 +31,18 @@ services: # Services should be defined under the services key
     networks:
       - my_network # Connect to the custom network
 
-  fastapi:
-    build:
-      context: ./api # Set context to the api directory
-      dockerfile: Dockerfile
-      args:
-        - BASE_IMAGE=tiangolo/uvicorn-gunicorn-fastapi:python3.9
-    image: fastapi
-    ports:
-      - "8001:80" # Map port 8001 on your host to port 80 in the container
-    volumes:
-      - ./api/app:/app # Mount the app directory
-    networks:
-      - my_network # Connect to the custom network
+# Comment Out in Production 👇👇👇
+
+# fastapi:
+#   build:
+#     context: ./api # Set context to the api directory
+#     dockerfile: Dockerfile
+#     args:
+#       - BASE_IMAGE=tiangolo/uvicorn-gunicorn-fastapi:python3.9
+#   image: fastapi
+#   ports:
+#     - "8001:80" # Map port 8001 on your host to port 80 in the container
+#   volumes:
+#     - ./api/app:/app # Mount the app directory
+#   networks:
+#     - my_network # Connect to the custom network

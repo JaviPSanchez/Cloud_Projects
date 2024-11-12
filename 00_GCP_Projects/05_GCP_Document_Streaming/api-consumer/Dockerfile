@@ -9,5 +9,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy the FastAPI application code
 COPY ./app /app
 
-# Ensure the container listens on the dynamic Cloud Run port
-ENV PORT=80
+# Expose port 8080
+EXPOSE 8080
+
+# Run the application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+

@@ -115,6 +115,7 @@ env.bak/
 venv.bak/
 secrets/.*
 secrets/*.json
+*.properties
 
 # Terraform
  .terraform/

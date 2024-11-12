@@ -15,12 +15,16 @@ from logging_config import configure_logger
 # Both used for BaseModel
 from pydantic import BaseModel
 
+# Dates
 from datetime import datetime
+
+# Kafka
 from kafka import KafkaProducer, producer
 from kafka.errors import KafkaError
 
 # GCP
 from google.cloud import storage
+
 
 # Configure logging
 configure_logger()
@@ -52,11 +56,10 @@ async def post_invoice_item(item: InvoiceItem):  # body awaits a JSON with invoi
     try:
         # Evaluate the timestamp and parse it to a datetime object
         date = datetime.strptime(item.InvoiceDate, "%d/%m/%Y %H:%M")
-        logger.debug(f"Found a timestamp: {date}")
-
+        
         # Replace the original date with a new datetime format
-        item.InvoiceDate = date.strftime("%d-%m-%Y %H:%M:%S")
-        logger.debug(f"New item date: {item.InvoiceDate}")
+        item.InvoiceDate = local_date.strftime("%d-%m-%Y %H:%M:%S")
+        logger.debug(f"Formatted InvoiceDate: {item.InvoiceDate}")
         
         # Parse item back to JSON
         json_of_item = jsonable_encoder(item)
@@ -76,6 +79,7 @@ async def post_invoice_item(item: InvoiceItem):  # body awaits a JSON with invoi
         logger.error(f"ValueError: {e}")
         return JSONResponse(content=jsonable_encoder(item), status_code=400)
     
+
 @app.post("/process-data-trigger-v2")
 async def process_data_trigger(request: Request):
     """Handle Cloud Storage event trigger, process JSON data, and send to Kafka."""
@@ -103,11 +107,6 @@ async def process_data_trigger(request: Request):
         blob = bucket.blob(file_name)
         
         # Log before downloading the file content
-        # logger.info(f"Downloading file: {file_name} from bucket: {bucket_name}")
-        # json_data = json.loads(blob.download_as_text())
-        # logger.info(f"Downloaded data: {json_data}")
-        
-        # Log before downloading the file content
         logger.info(f"Downloading file: {file_name} from bucket: {bucket_name}")
         file_content = blob.download_as_text()
         logger.info(f"Downloaded data: {file_content}")
@@ -122,9 +121,9 @@ async def process_data_trigger(request: Request):
             
             item = InvoiceItem(**item_data)
             
-            # Format the date as required
-            date = datetime.strptime(item.InvoiceDate, "%d/%m/%y %H:%M")  # Change %Y to %y
-            item.InvoiceDate = date.strftime("%d-%m-%Y %H:%M:%S")  # Convert to four-digit year format if needed
+            # Format the date as required with timezone offset
+            date = datetime.strptime(item.InvoiceDate, "%d/%m/%y %H:%M")
+            item.InvoiceDate = local_date.strftime("%d-%m-%Y %H:%M:%S")
             logger.debug(f"Formatted InvoiceDate: {item.InvoiceDate}")
             
             # Convert to JSON string
@@ -138,6 +137,7 @@ async def process_data_trigger(request: Request):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
         
 
 def produce_kafka_string(json_as_string):
@@ -147,17 +147,17 @@ def produce_kafka_string(json_as_string):
         logger.info("Attempting to create Kafka producer...")
         
         # Create Kafka producer in GCP
-        producer = KafkaProducer(bootstrap_servers='bootstrap.kafka-cluster.us-central1.managedkafka.gcp-classification-v1.cloud.goog:9092', acks=1)
+        producer = KafkaProducer(bootstrap_servers='10.128.0.14:9092', acks=1)
         logger.info("Kafka producer created successfully.")
 
         # Write the string as bytes because Kafka needs it this way
-        future = producer.send('t2', bytes(json_as_string, 'utf-8'))
+        future = producer.send('ingestion-topic', bytes(json_as_string, 'utf-8'))
         logger.info(f"Message sent to Kafka: {json_as_string}")
         
         # Block until a single message is sent (or timeout)
         result = future.get(timeout=10)  # Wait for the send to complete
 
-        logger.info(f"Produced message to Kafka topic 't2': {result}")
+        logger.info(f"Produced message to Kafka topic 'ingestion-topic': {result}")
     
     except KafkaError as e:
         logger.error(f"Failed to send message to Kafka: {e}")

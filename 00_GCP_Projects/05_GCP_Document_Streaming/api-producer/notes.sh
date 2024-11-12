@@ -1,3 +1,6 @@
+# Run Docker local
+docker compose up
+
 # Open my Docker Hub
 https://hub.docker.com/r/javipsanchez/fastapi
 # Build image

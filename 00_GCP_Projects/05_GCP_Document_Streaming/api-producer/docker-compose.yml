@@ -1,0 +1,9 @@
+services:
+  fastapi:
+    build:
+      context: . # Path to the Dockerfile
+    image: fastapi
+    ports:
+      - "8001:80" # Map port 8001 on your host to port 80 in the container
+    volumes:
+      - ./app:/app # Mount the app directory

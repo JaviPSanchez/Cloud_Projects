@@ -1,5 +1,10 @@
 # Select project
+gcloud projects list
 gcloud config set project gcp-classification-v1
+# Show VM
+gcloud compute instances list
+
+
 # Get a subnet identifier
 gcloud compute networks subnets describe default --region=us-central1 \
     --format='value(selfLink)' | sed 's|.*/compute/v1/||'
