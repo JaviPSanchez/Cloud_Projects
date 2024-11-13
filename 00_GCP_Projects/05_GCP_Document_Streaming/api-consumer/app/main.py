@@ -2,8 +2,6 @@
 import os
 import threading
 import sys
-from pathlib import Path
-from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
 
@@ -23,16 +21,6 @@ configure_logger()
 
 # Initialize FastAPI
 app = FastAPI()
-
-# Get the path to the directory this file is in
-BASEDIR = os.path.abspath(os.path.dirname(__file__))
-
-# Load the .env file
-load_dotenv(os.path.join(BASEDIR, '../secrets/.env'))
-
-# Define path to the credentials file and set GOOGLE_APPLICATION_CREDENTIALS
-google_credentials_path = os.path.join(BASEDIR, '../secrets/key_access_sql.json')
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
 
 def consume_kafka_messages():
     consumer = None
